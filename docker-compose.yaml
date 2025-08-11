@@ -1,0 +1,47 @@
+services:
+    demowebapp:
+        # image: demowebapp
+        build:
+            context: ./
+            args:
+                - t=demowebapp
+        container_name: demowebapp
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Docker
+        ports:
+            - "5000:8080"
+        networks:
+            - vnet
+    sqlserver:
+        image: "mcr.microsoft.com/mssql/server:2025-latest"
+        container_name: sqlserver
+        environment:
+            - MSSQL_SA_PASSWORD=Developer01
+            - ACCEPT_EULA=Y
+            - MSSQL_PID=Express
+        ports:
+            - "1433:1433"
+        networks:
+            - vnet
+        volumes:
+            - dbdata:/var/opt/mssql
+    azurite:
+        image: "mcr.microsoft.com/azure-storage/azurite"
+        container_name: azurite
+        ports:
+            - "10000:10000"
+            - "10001:10001"
+            - "10002:10002"
+        networks:
+            - vnet
+        volumes:
+            - azurite_data:/data mcr.microsoft.com/azure-storage/azurite
+
+networks:
+    vnet:
+
+volumes:
+    dbdata:
+        driver: local
+    azurite_data:
+        driver: local
