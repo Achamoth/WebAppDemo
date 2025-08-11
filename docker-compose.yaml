@@ -12,6 +12,8 @@ services:
             - "5000:8080"
         networks:
             - vnet
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
     sqlserver:
         image: "mcr.microsoft.com/mssql/server:2025-latest"
         container_name: sqlserver
@@ -35,7 +37,7 @@ services:
         networks:
             - vnet
         volumes:
-            - azurite_data:/data mcr.microsoft.com/azure-storage/azurite
+            - azurite_data:/data
 
 networks:
     vnet:

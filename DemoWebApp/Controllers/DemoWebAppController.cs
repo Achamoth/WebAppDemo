@@ -1,7 +1,11 @@
+using Azure.Storage.Blobs;
 using DemoWebApp.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace DemoWebApp.Controllers
 {
@@ -48,5 +52,25 @@ namespace DemoWebApp.Controllers
 values (newid(), 'Test')";
             await command.ExecuteNonQueryAsync();
         }
+
+        [HttpPost("CreateBlob")]
+        public async Task CreateBlob()
+        {
+            var blobConnectionString = _connectionStrings.AzureBlobStorage;
+            var blobContainerClient = new BlobContainerClient(blobConnectionString, "demowebapp");
+            await blobContainerClient.CreateIfNotExistsAsync();
+
+            var test = new TestClass { Number = 1, Value = "test" };
+            var json = JsonConvert.SerializeObject(test);
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+
+            await blobContainerClient.UploadBlobAsync($"{DateTime.Now:ddMMyyyymmss}.json", stream);
+        }
+    }
+
+    public class TestClass
+    {
+        public string? Value { get; set; }
+        public int Number {  get; set; }
     }
 }
